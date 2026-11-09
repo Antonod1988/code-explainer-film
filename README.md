@@ -44,3 +44,7 @@ The pipeline made a real 5:16 film in Russian and English: 16 beats, 57 cues, te
 The template was extracted from that film afterwards. On the demo, the voice, the mix and the sound checks have been run, the delivery tools on a black clip, `render.py` against stub pages, and the flat picture logic over every frame against a stub canvas in both languages. **The template has not yet drawn a real frame**, and its 3D shot has never run. Rendering has only ever been done on Windows with Edge. Nobody has run the skill from a clean start yet. `SKILL.md` tells the agent to treat its first stills as the test.
 
 `edge-tts` is an unofficial client for the voices of Microsoft Edge. Check that its terms fit your use.
+
+## License
+
+MIT, see [LICENSE](LICENSE). It covers the code in this repository, including the example film's code.
