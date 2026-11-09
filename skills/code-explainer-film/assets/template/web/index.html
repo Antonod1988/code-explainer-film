@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>film</title>
+<style>html, body { margin: 0; background: #111; } canvas { width: 100vw; height: auto; display: block; }</style>
+<script>
+// Report errors before anything else loads: a script that fails here would otherwise leave the recorder waiting for frames.
+var TIMING = {};
+var LANG = new URLSearchParams(location.search).get('lang') || 'ru';
+addEventListener('error', function (e) {
+  var what = e.message || (e.target && e.target.src ? 'failed to load ' + e.target.src : 'unknown error');
+  fetch('/fatal', { method: 'POST', body: 'early: ' + what + ' @' + (e.filename || '') + ':' + (e.lineno || 0) });
+}, true);
+document.write('<script src="timing_' + LANG + '.js"><\/script>');
+</script>
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/jsm/" } }
+</script>
+</head>
+<body>
+<script src="lib.js"></script>
+<script src="labels.js"></script>
+<script src="shots.js"></script>
+<script src="film.js"></script>
+<script type="module" src="main.js"></script>
+</body>
+</html>

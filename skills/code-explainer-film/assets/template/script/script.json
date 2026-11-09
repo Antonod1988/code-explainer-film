@@ -1,0 +1,46 @@
+{
+ "stem": {
+  "ru": "demo-ru",
+  "en": "demo-en"
+ },
+ "lead_in": 0.8,
+ "tail": 0.2,
+ "voice": {
+  "ru": {
+   "name": "ru-RU-SvetlanaNeural",
+   "rate": "+6%",
+   "pitch": "-2Hz"
+  },
+  "en": {
+   "name": "en-GB-SoniaNeural",
+   "rate": "+2%",
+   "pitch": "-1Hz"
+  }
+ },
+ "beats": [
+  {
+   "id": "b01",
+   "shot": "title",
+   "pause": 0.6,
+   "title": {"ru": "Луна не меняет форму", "en": "The Moon keeps its shape"},
+   "ru": "Луна не меняет форму. {turn}Меняется только то, какую часть её освещённой половины мы видим.",
+   "en": "The Moon does not change its shape. {turn}All that changes is how much of its lit half we can see."
+  },
+  {
+   "id": "b02",
+   "shot": "orbit",
+   "pause": 0.6,
+   "title": {"ru": "Круг за месяц", "en": "One circle a month"},
+   "ru": "Солнце всегда освещает ровно половину Луны. {orbit}За месяц Луна обходит Землю, и мы смотрим на эту половину {side}под разными углами.",
+   "en": "The Sun always lights exactly one half of the Moon. {orbit}Over a month the Moon circles the Earth, and we look at that half {side}from different angles."
+  },
+  {
+   "id": "b03",
+   "shot": "phases",
+   "pause": 1.8,
+   "title": {"ru": "Все фазы", "en": "All the phases"},
+   "ru": "Поэтому за двадцать девять с половиной дней она проходит {cycle}все фазы и {end}начинает заново.",
+   "en": "That is why, in twenty-nine and a half days, it goes through {cycle}all its phases and {end}starts over."
+  }
+ ]
+}

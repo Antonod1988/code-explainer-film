@@ -1,0 +1,7 @@
+renders/
+final/
+_edge*/
+audio/mix/
+audio/voice/*/*.wav
+__pycache__/
+web/vendor/
