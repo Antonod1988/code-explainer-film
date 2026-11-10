@@ -13,7 +13,7 @@ function wipeGeom(p) {
   const w = 380;
   const footY = H - 62 + Math.sin(p * Math.PI) * 4;
   const dirx = Math.sin(lean), diry = -Math.cos(lean), nx = Math.cos(lean), ny = Math.sin(lean);
-  const far = 1600;
+  const far = Math.max(1600, H + 520);
   const P = (s, along) => [footX + nx * s + dirx * along, footY + ny * s + diry * along];
   const leading = [], trailing = [];
   for (let i = 0; i <= 26; i++) {
@@ -24,10 +24,10 @@ function wipeGeom(p) {
   return { footX, footY, lean, w, P, band: poly(leading.concat(trailing.slice().reverse())), trailing, far };
 }
 function paintWipe(g, W0) {
-  const { footX, footY, lean, w, P, band } = W0;
+  const { footX, footY, lean, w, P, band, far } = W0;
   ink(g, band, C.parch3);
   g.save(); g.clip(band);
-  g.fillStyle = C.parch; g.fill(poly([P(-w / 2 - 8, 0), P(-w / 2 + 40, 0), P(-w / 2 + 40, 1700), P(-w / 2 - 8, 1700)]));
+  g.fillStyle = C.parch; g.fill(poly([P(-w / 2 - 8, 0), P(-w / 2 + 40, 0), P(-w / 2 + 40, far + 100), P(-w / 2 - 8, far + 100)]));
   const zig = [];
   for (let i = 0; i < 26; i++) zig.push(P(w / 2 - 66 + (i % 2 ? 26 : 0), 40 + i * 62));
   line(g, zig, C.parch2, 4, [13, 10]);

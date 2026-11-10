@@ -23,6 +23,7 @@
    "shot": "title",
    "pause": 0.6,
    "title": {"ru": "Луна не меняет форму", "en": "The Moon keeps its shape"},
+   "scene": {"ru": "На звёздном фоне Луна поворачивается освещённой стороной к зрителю; подпись указывает видимую часть.", "en": "Against a starry sky, the Moon turns its lit side towards us; a tag points to the visible part."},
    "ru": "Луна не меняет форму. {turn}Меняется только то, какую часть её освещённой половины мы видим.",
    "en": "The Moon does not change its shape. {turn}All that changes is how much of its lit half we can see."
   },
@@ -31,6 +32,7 @@
    "shot": "orbit",
    "pause": 0.6,
    "title": {"ru": "Круг за месяц", "en": "One circle a month"},
+   "scene": {"ru": "Объёмная Луна обходит Землю по пунктирной орбите. Свет падает справа, камера показывает разные углы наблюдения.", "en": "A 3D Moon circles the Earth on a dashed orbit. Sunlight comes from the right as the camera shows different viewing angles."},
    "ru": "Солнце всегда освещает ровно половину Луны. {orbit}За месяц Луна обходит Землю, и мы смотрим на эту половину {side}под разными углами.",
    "en": "The Sun always lights exactly one half of the Moon. {orbit}Over a month the Moon circles the Earth, and we look at that half {side}from different angles."
   },
@@ -39,6 +41,7 @@
    "shot": "phases",
    "pause": 1.8,
    "title": {"ru": "Все фазы", "en": "All the phases"},
+   "scene": {"ru": "По очереди появляются восемь фаз Луны. Золотая звезда проходит цикл и возвращается к началу; сверху длительность месяца.", "en": "Eight Moon phases appear in sequence. A gold star follows the cycle and returns to the start; the month length appears above."},
    "ru": "Поэтому за двадцать девять с половиной дней она проходит {cycle}все фазы и {end}начинает заново.",
    "en": "That is why, in twenty-nine and a half days, it goes through {cycle}all its phases and {end}starts over."
   }

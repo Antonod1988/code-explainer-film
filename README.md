@@ -1,6 +1,8 @@
 # Film in code
 
-An Agent Skill that lets a coding agent make a complete narrated explainer film with no video generator: Canvas 2D illustration, three.js 3D inserts, a neural voice-over, a score and sound effects synthesised in numpy, separate versions per language, and delivery copies for Telegram, YouTube and X.
+[Русская версия: этапы, команды, что агент может и чего не может](README.ru.md)
+
+An Agent Skill that lets a coding agent make a complete narrated explainer film with no video generator: Canvas 2D illustration, three.js 3D inserts, a neural voice-over, a score and sound effects synthesised in numpy, separate versions per language, horizontal or vertical, and delivery copies for Telegram, YouTube and X. It runs straight through to a rough cut, or stage by stage (format, script, mock-up, voice, final) with you approving each step.
 
 The film is a program. Every frame is a function of time, so any second can be changed and re-rendered, and another language is a re-run, not a new edit.
 
@@ -24,9 +26,21 @@ skills/code-explainer-film/
   SKILL.md                 the workflow, from a reference video to delivery
   references/              how to measure a video, script and voice, picture, sound, review and render, delivery, pitfalls
   scripts/                 check the machine, start a project
-  assets/template/         a project skeleton with a 25-second demo: voice, flat shots, a 3D shot, a score
+  assets/template/         a project skeleton with a 25-second demo: voice, flat shots, a 3D shot, a score,
+                           a preview player with sound, a storyboard sheet, rendering in resumable parts
   assets/examples/         the code of the real film, to read for technique
 ```
+
+The stages, and the tools a person uses at each:
+
+| Stage | What you get | Command in the project |
+|---|---|---|
+| Format | 16:9, 9:16, 1:1, 4:5, 4k or your own size and fps | `"format"` in `script/script.json` |
+| Script | Beats with scene, narration and cues, as a table | `python tools/storyboard.py ru --text` |
+| Voice | Takes with word times, the timeline; stresses in a lexicon, trial takes | `python tools/tts.py`, `--try`, `--voices` |
+| Mock-up | The film in a browser with sound, timeline and seeking; a storyboard sheet | `python tools/preview.py ru`, `python tools/storyboard.py ru` |
+| Sound | Score and effects on the same cues, mix at -15 LUFS, checks | `python audio/score.py ru`, `tools/bands.py`, `tools/qa_audio.py` |
+| Final | Film streamed into ffmpeg, in parts if long; master, phone copy, Telegram copy, subtitles | `render_parts.py`, `tools/finish_film.py`, `tools/telegram_copy.py` |
 
 ## Install
 
@@ -41,7 +55,7 @@ Then ask your agent for an animated explainer. Needs Python 3 with numpy, scipy,
 
 The pipeline made a real 5:16 film in Russian and English: 16 beats, 57 cues, ten 3D inserts, 14 to 16 minutes of rendering per language on a laptop.
 
-The template was extracted from that film afterwards. On the demo, the voice, the mix and the sound checks have been run, the delivery tools on a black clip, `render.py` against stub pages, and the flat picture logic over every frame against a stub canvas in both languages. **The template has not yet drawn a real frame**, and its 3D shot has never run. Rendering has only ever been done on Windows with Edge. Nobody has run the skill from a clean start yet. `SKILL.md` tells the agent to treat its first stills as the test.
+The template was extracted from that film afterwards. Its demo has since drawn real stills, flat and 3D, and a second film's concept frames were built on it. The stage tools were run on the demo in fresh 16:9 and 9:16 projects: voice with a lexicon, trial takes, storyboards, the preview player in a browser, a render in parts joined and resumed, and the vertical delivery copies. Rendering has only ever been done on Windows with Edge, nobody has listened to the takes, and no agent has run the skill from a clean start yet.
 
 `edge-tts` is an unofficial client for the voices of Microsoft Edge. Check that its terms fit your use.
 

@@ -1,10 +1,11 @@
 """Start a film project from the template.
 
-  python new_project.py <folder> [--langs ru,en] [--three-from DIR] [--no-three]
+  python new_project.py <folder> [--langs ru,en] [--format PRESET] [--three-from DIR] [--no-three]
 
 Copies assets/template into <folder>, sets the file names of the finals from the folder name, and puts three.js into
 web/vendor: fetched at a pinned version from jsDelivr, or copied with --three-from (a vendor folder, or a project that has one).
 Refuses a folder that already holds files.
+--format: 16:9 (1920x1080), 9:16 (1080x1920), 1:1 (1080x1080), 4:5 (1080x1350), 4k (3840x2160).
 """
 import argparse
 import json
@@ -52,6 +53,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("folder")
     ap.add_argument("--langs", default="ru,en", help="which of the demo's languages to keep")
+    ap.add_argument("--format", choices=("16:9", "9:16", "1:1", "4:5", "4k"))
     ap.add_argument("--three-from")
     ap.add_argument("--no-three", action="store_true")
     a = ap.parse_args()
@@ -71,6 +73,8 @@ def main():
     keep = [x for x in langs if x in script["voice"]] or list(script["voice"])
     script["voice"] = {k: v for k, v in script["voice"].items() if k in keep}
     script["stem"] = {k: f"{dst.name}-{k}" for k in keep}
+    if a.format:
+        script["format"] = {"preset": a.format}
     path.write_text(json.dumps(script, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
 
     vendor = dst / "web" / "vendor"
@@ -87,7 +91,13 @@ Project ready: {dst}
 Prove the pipeline on the demo before changing anything, from that folder:
   python tools/tts.py
   python render.py renders/check "lang={keep[0]}&times=2,5,9,14,18"
-  python tools/contact.py renders/check 3""")
+  python tools/contact.py renders/check 3
+  python tools/preview.py {keep[0]}
+  python render_parts.py renders/film_{keep[0]} "lang={keep[0]}&file=film_{keep[0]}.mp4" --part 60
+  python tools/tts.py --voices {keep[0]}
+  python tools/tts.py {keep[0]} b02 --try "rate=-4%,pitch=-6Hz"
+  python tools/storyboard.py {keep[0]} --text
+  python tools/storyboard.py {keep[0]}""")
 
 
 if __name__ == "__main__":

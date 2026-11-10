@@ -11,6 +11,8 @@
 
 `--phone-mb` and `--mb` set the size limits. The bitrate comes from the duration, capped at 3 Mbps, so a longer film gets softer at the same size. Past about 10 minutes, raise the limit or lower the resolution.
 
+The small copies keep the film's orientation from its `format`: short side 540, so a vertical film gives 540x960 and a square one 540x540. For Shorts, Reels and TikTok make the film itself `9:16` from the start. Cropping a 16:9 master loses the edges of every composition. Length limits for those platforms change often: check the current ones before promising a length.
+
 Some ways of sending files to a user have their own limit, 30 MiB in the desktop app's file card. Send the small copy and name the path of the master.
 
 ## Telegram

@@ -5,6 +5,7 @@
 ```json
 {
  "stem": { "ru": "chasy-neba-ru", "en": "clock-of-the-sky-en" },
+ "format": { "preset": "16:9" },
  "lead_in": 0.8,
  "tail": 0.2,
  "voice": {
@@ -17,6 +18,8 @@
    "shot": "opening",
    "pause": 0.7,
    "title": { "ru": "Звезда 1054 года", "en": "The star of 1054" },
+   "scene": { "ru": "Ночное небо над дворцом, вспыхивает звезда; рука астронома ставит её на карту.",
+              "en": "Night sky over a palace, a star flares; the astronomer's hand plants it on the map." },
    "ru": "Летом тысяча пятьдесят четвёртого года на небе {flare}вспыхнула новая звезда.",
    "en": "In the summer of ten fifty-four, a new star {flare}blazed into the sky."
   }
@@ -25,10 +28,16 @@
 ```
 
 - `voice` decides the languages. Every beat needs text in each.
+- `format` sets the frame: a `preset` (`16:9` 1920x1080, `9:16` 1080x1920, `1:1` 1080x1080, `4:5` 1080x1350, `4k` 3840x2160) or `w`, `h`, and `fps` (default 24). Without it the film is 1920x1080 at 24 fps. `tts.py` copies it into the timeline, and `W`, `H`, `FPS` in the page come from there.
 - `stem` names the final files.
 - `pause` is the silence after a beat. Use 0.5 to 0.8 between beats. Give the last beat 1.5 to 3 s, so the ending can breathe under the fade.
 - `shot` is a label printed by tools. The order of shots in the film is set by `SEQ` in `web/film.js`, and one beat can hold several shots.
 - `title` is optional and feeds `tools/chapters.py`.
+- `scene` is optional: what is on screen, a plain string or one per language. Nothing reads it but people, `tools/storyboard.py` and you when writing the shot. Write it before the shot exists.
+- `still` is optional: seconds into the beat for the storyboard's still (default: 60% of the beat).
+- `voice` inside a beat overrides the language's voice for that beat only: `"voice": { "ru": { "rate": "+0%" } }`.
+
+`python tools/storyboard.py ru --text` writes `script/storyboard_ru.md`: the beats as a table with times (estimated from the word count before any voice exists), scenes and narration. It is what to show someone who wants to approve the script.
 
 ## Word budget
 
@@ -40,7 +49,30 @@ From the real film at 5:16: Russian 664 words, about 126 a minute with `rate +6%
 - **Spell out numbers and years as words:** `тысяча пятьдесят четвёртого`, `ten fifty-four`. Digits are read inconsistently, and spoken tokens that differ from the text break word alignment.
 - Write `ё` in Russian, and spell out abbreviations.
 - Avoid rare names at the start of a beat. Whisper mishears them, so you get no confirmation they were read well. Ask the user to listen to any you are unsure of.
-- edge-tts takes plain text, so a wrong stress is fixed by rewording.
+- Homographs (`замок`, `атлас`, `мука`, `кружки`) and rare names are where stresses go wrong. Put them in the lexicon from the start.
+
+## Fixing the voice
+
+**The lexicon**, `script/lexicon.json`, is applied to every take and only to the text sent to the voice:
+
+```json
+{ "ru": { "замок": "замо́к", "МКС": "эм-ка-эс" }, "en": {} }
+```
+
+- A stress is a COMBINING ACUTE ACCENT, U+0301, right after the stressed vowel. Tested with `ru-RU-SvetlanaNeural`: the mark reaches the voice and the take changes (that syllable grew longer). An upper-case vowel (`замОк`) changed nothing. Whether the stress now falls right only an ear can tell.
+- A respelling replaces the word as written with what should be heard: abbreviations, names, foreign words.
+- Subtitles, cues and the timeline keep the script's own spelling. Changing an entry re-voices only the beats that contain that word.
+
+**One beat at a time:** a beat's own `voice` (`rate`, `pitch`, `name`) re-voices only that beat. To compare before choosing:
+
+```bash
+python tools/tts.py ru b02 --try "rate=-4%,pitch=-6Hz" --try "name=ru-RU-DmitryNeural"
+python tools/tts.py --voices ru
+```
+
+`--try` writes `audio/voice/ru/try/b02_1.mp3`, `_2.mp3` and leaves the film alone. `--voices` lists what the service offers for a language prefix. Edge has few voices per language, two for Russian; for another timbre, see "Any other engine" below.
+
+**Listening:** `python tools/tts.py ru` then `python tools/preview.py ru`. The player plays the takes over the picture, with the spoken word highlighted, which is the fastest way for a person to find a wrong stress, a rushed sentence or a cue on the wrong word. You cannot hear any of it: say so, and name the words you want checked.
 
 ## Cue grammar
 
@@ -70,7 +102,7 @@ TIMING.ru = { "lang": "ru", "total": 315.933, "beats": [
 
 ## Takes
 
-`audio/voice/<lang>/<beat>.mp3` with `.json` (word boundaries), `.stamp` (hash of text and voice) and `.wav`. A take is redone only when its stamp changes, and the old one is overwritten, so there is nothing to delete by hand. Running `tts.py` remakes the WAVs from the mp3s; `audio/score.py` needs them. After any text change, re-run it and re-read the cue lines, since every later time moved.
+`audio/voice/<lang>/<beat>.mp3` with `.json` (word boundaries), `.stamp` (hash of the text as sent, the lexicon entries it uses and the voice) and `.wav`. A take is redone only when its stamp changes, and the old one is overwritten, so there is nothing to delete by hand. Running `tts.py` remakes the WAVs from the mp3s; `audio/score.py` needs them. After any text change, re-run it and re-read the cue lines, since every later time moved.
 
 ## Voices
 

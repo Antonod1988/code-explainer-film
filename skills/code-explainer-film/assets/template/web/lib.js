@@ -1,6 +1,7 @@
 // lib.js: palette, spline paths, tapered strokes, small ornaments, keyframe tracks and the woven grain.
 'use strict';
-const W = 1920, H = 1080;
+const FORMAT = TIMING[LANG].format || {};
+const W = FORMAT.w || 1920, H = FORMAT.h || 1080, FPS = FORMAT.fps || 24;
 const INK = '#17100c';
 const LINE = 3.2;
 const C = {

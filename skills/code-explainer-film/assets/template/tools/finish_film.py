@@ -3,7 +3,7 @@
   python tools/finish_film.py ru [--phone-mb 29]
 
 Reads renders/film_<lang>/film_<lang>.mp4 and audio/mix/<lang>.wav.
-Writes final/<stem>.mp4 (master), final/<stem>-phone.mp4 (960x540, two-pass, under the limit), final/<stem>.srt.
+Writes final/<stem>.mp4 (master), final/<stem>-phone.mp4 (up to 960, aspect preserved, two-pass), final/<stem>.srt.
 <stem> comes from "stem" in script/script.json.
 """
 import argparse
@@ -12,7 +12,7 @@ import re
 import subprocess
 import textwrap
 
-from common import MARK, ROOT, ffmpeg, script, stem, timeline
+from common import MARK, ROOT, copy_size, ffmpeg, script, stem, timeline
 
 ap = argparse.ArgumentParser()
 ap.add_argument("lang")
@@ -28,6 +28,7 @@ final.mkdir(exist_ok=True)
 master = final / f"{stem(lang)}.mp4"
 phone = final / f"{stem(lang)}-phone.mp4"
 TL = timeline(lang)
+sw, sh = copy_size(TL)
 
 subprocess.run([FF, "-y", "-loglevel", "error", "-i", str(pic), "-i", str(mix), "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "224k",
                 "-shortest", "-movflags", "+faststart", str(master)], check=True)
@@ -37,7 +38,7 @@ kbps = min(3000, max(200, int((a.phone_mb * 8 * 1024) / TL["total"] - 96)))
 log = str(ROOT / "renders" / f"_2pass_{lang}")
 for p in (1, 2):
     extra = ["-an", "-f", "null", os.devnull] if p == 1 else ["-c:a", "aac", "-b:a", "96k", "-movflags", "+faststart", str(phone)]
-    subprocess.run([FF, "-y", "-loglevel", "error", "-i", str(master), "-vf", "hqdn3d=2.5:2.5:5:5,scale=960:540:flags=lanczos", "-c:v", "libx264", "-preset", "slower",
+    subprocess.run([FF, "-y", "-loglevel", "error", "-i", str(master), "-vf", f"hqdn3d=2.5:2.5:5:5,scale={sw}:{sh}:flags=lanczos", "-c:v", "libx264", "-preset", "slower",
                     "-tune", "animation", "-b:v", f"{kbps}k", "-maxrate", f"{int(kbps * 1.6)}k", "-bufsize", f"{kbps * 3}k", "-threads", os.environ.get("THREADS", "6"),
                     "-pix_fmt", "yuv420p", "-pass", str(p), "-passlogfile", log] + extra, check=True)
 for leftover in (ROOT / "renders").glob(f"_2pass_{lang}*"):

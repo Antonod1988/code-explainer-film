@@ -1,6 +1,6 @@
 ---
 name: code-explainer-film
-description: "Make a complete narrated short film or animated explainer entirely in code, with no video generator: Canvas 2D illustration and three.js 3D inserts recorded frame by frame to MP4, a neural voice-over whose word timings drive the edit, a score and sound effects synthesised in numpy, separate versions per language, checks of picture and sound without a human, and delivery copies for Telegram, YouTube and X. Use whenever the user wants an animation, explainer, video essay, educational film or intro with voice-over, especially 'like this YouTube video', 'сделай такое видео', 'сделай анимацию или ролик с озвучкой', 'в стиле этого ролика', 'на русском и английском', even if they never say 'code'. Not for editing existing footage or for Blender scenes."
+description: "Make a complete narrated short film or animated explainer entirely in code, with no video generator: Canvas 2D illustration and three.js 3D inserts recorded frame by frame to MP4, a neural voice-over whose word timings drive the edit, a score and sound effects synthesised in numpy, separate versions per language, horizontal or vertical, a browser preview with sound, checks of picture and sound without a human, and delivery copies for Telegram, YouTube and X. Runs straight through, or stage by stage with the user approving each step. Use whenever the user wants an animation, explainer, video essay, educational film, Short or intro with voice-over, especially 'like this YouTube video', 'сделай такое видео', 'сделай анимацию или ролик с озвучкой', 'в стиле этого ролика', 'по этапам', 'вертикальный ролик', 'на русском и английском', even if they never say 'code'. Not for editing existing footage or for Blender scenes."
 ---
 
 # Film in code
@@ -22,6 +22,18 @@ CUE.cut   = 10.50   cut to the deed, the quill starts writing
 
 Each language gets its own timeline from its own take, so a Russian and an English film are cut differently with no extra work, and a rewritten sentence moves everything after it. This is why the order below is script, voice, picture, sound, and never picture first.
 
+## Two ways to run it
+
+- **Straight through** (the default): a complete rough film first, then polish. Most people judge a whole film far better than a perfect ten seconds.
+- **Stage by stage**: when the user wants to approve each step ("по этапам", "останавливайся после каждого шага", "I want control over every stage"), stop at five checkpoints and wait for their word:
+  1. **Format**: preset, size, fps, length, languages, where it goes (phase 1).
+  2. **Script**: the scene list with narration, `python tools/storyboard.py ru --text` (phase 4).
+  3. **Mock-up**: the picture in the preview player and a storyboard sheet (phases 6 and 7).
+  4. **Voice**: the takes played over the picture, stresses and pace fixed (phases 5 and 8).
+  5. **Final**: the rendered film and its copies (phases 9 and 10).
+
+  At each checkpoint show the thing itself (a file, a sheet, the player's address), say what you checked and what you could not, and ask one question. Do not move on without an answer.
+
 ```
 script/script.json ─ tools/tts.py ─> audio/voice/<lang>/  +  web/timing_<lang>.js
                                                                    │
@@ -37,20 +49,20 @@ script/script.json ─ tools/tts.py ─> audio/voice/<lang>/  +  web/timing_<lan
 
 ```bash
 python <this-skill>/scripts/check_env.py
-python <this-skill>/scripts/new_project.py <folder>
+python <this-skill>/scripts/new_project.py <folder> [--format 9:16]
 ```
 
 Put the project on a drive with room, in a folder named after the film, on a short path. Frames are streamed to the encoder and never stored, so a 5-minute film needs about 1 GiB.
 
 The new project is a working 25-second demo about the phases of the Moon, in two languages. Run the commands `new_project.py` prints and look at the contact sheet before changing anything: if the demo works, every later failure is yours and not the machine's.
 
-**Status of the template.** The pipeline made the real film, but this template was extracted from it afterwards. On the demo, `tts.py`, the mix and the sound checks have been run. The delivery tools have been run on a black clip, `render.py` against stub pages, and the flat picture logic over every frame against a stub canvas in both languages. The template has never drawn a real frame, and its 3D shot has never run. So the first stills are also the test of the template: if they fail, compare with `assets/examples/court-astronomer/`, which is the code that did render.
+**Status of the template.** The pipeline made the real film, and this template was extracted from it afterwards. The demo has since drawn real stills, flat and 3D, on Windows with Edge, and a second film's concept frames were built on it. The stage tools were run on the demo in fresh 16:9 and 9:16 projects: the lexicon (a stress mark and a two-word respelling, cues still on their words), trial takes, the voice list, both storyboards, stills at 1080x1920, the preview player in a browser (seeking, playing on the mix's clock, the spoken word lit), a render in three parts joined to the exact frame count and resumed without re-rendering, and the vertical delivery copies. Nobody has listened to a take, and no agent has run the skill from a clean start yet. If something fails on your machine, compare with `assets/examples/court-astronomer/`, which is the code of the film that rendered in full.
 
 Then replace the content and keep the machinery:
 
 | Replace for each film | Normally leave alone |
 |---|---|
-| `script/script.json` | `tools/` |
+| `script/script.json`, `script/lexicon.json` | `tools/` |
 | `web/shots.js` (flat shots) | `render.py`, `server.py` |
 | `web/film.js`: `SHOT` and `SEQ` | `web/main.js`, `web/lib.js`, `web/labels.js` |
 | `web/space.js`: the builders | `web/space.js`: the kit above them |
@@ -62,7 +74,7 @@ Run commands that take over two minutes in the background. If the machine has a 
 
 ### 1. Pin down the request
 
-Ask only what you cannot default: the subject, the languages, where it will be posted. Default to 1920x1080, 24 fps, -15 LUFS, a length that follows from the script. Build a complete rough film before polishing any part of it. People judge a whole film far better than a perfect ten seconds, and they often say outright that top quality can wait.
+Ask only what you cannot default: the subject, the languages, where it will be posted, and whether they want to approve each stage. Default to 1920x1080, 24 fps, -15 LUFS, a length that follows from the script. The size and frame rate live in `"format"` in `script.json`: a preset (`16:9`, `9:16` for Shorts and Reels, `1:1`, `4:5`, `4k`) or `w`, `h`, `fps`. The page, the renderer and the delivery copies all read it. Decide it now: a vertical film is composed differently, not cropped later. Build a complete rough film before polishing any part of it, unless the user chose stage by stage. People judge a whole film far better than a perfect ten seconds, and they often say outright that top quality can wait.
 
 ### 2. Read the reference, if there is one
 
@@ -76,7 +88,7 @@ One shot in the final look, silent. Hard-coded times are fine here because this 
 
 ### 4. Collect facts, write the script
 
-Read `references/script-and-voice.md`. Split the film into beats of 10 to 35 seconds, each one idea and usually one shot. Budget words: about 125 a minute in Russian and 150 in English, pauses included. Put cues on the words where something must happen on screen.
+Read `references/script-and-voice.md`. Split the film into beats of 10 to 35 seconds, each one idea and usually one shot. Budget words: about 125 a minute in Russian and 150 in English, pauses included. Put cues on the words where something must happen on screen. Give every beat a `scene`: one or two sentences on what is on screen. It is the brief for the shot, and it is what a person approves before any code exists. `python tools/storyboard.py ru --text` lays the beats out as a table with estimated times.
 
 Keep exact facts and interpretation visibly apart, in the film and not only in your notes. If you compute something, keep the data in a file the film reads, so what is on screen is what the data says.
 
@@ -90,6 +102,8 @@ python tools/tts.py
 
 It prints each cue as `name=word@seconds`. Read those lines: a cue on the wrong word is far cheaper to catch here. Check the total against the target. If it runs long, cut text; do not speed the voice past about +10%.
 
+Fix the voice where it is wrong, not by rewriting around it: a stress or a reading goes into `script/lexicon.json` and then applies to every take, a slow or hurried beat gets its own `rate`, and `--try` makes alternative takes of one beat to compare. `--voices ru` lists the voices. You cannot hear stresses, so ask the user to listen to the words you are unsure of, in the preview player.
+
 ### 6. Write the shots
 
 Read `references/picture.md`. Everything on screen is a function of `(g, t)` and every time derives from `CUE` or `BEAT`. Flat shots draw with the Canvas kit; 3D shots render through the composer into the same 2D canvas. One grain pass at the end of every frame and one set of labels make the two read as one film.
@@ -102,6 +116,15 @@ python tools/contact.py renders/check 4
 ```
 
 Read `references/review-and-render.md` for how to choose moments and what to look for. Open the sheet and really inspect it: most defects are invisible in code and obvious in a picture. Batch your questions. Back-to-back review renders are what makes a laptop hot and a session slow.
+
+For a person, two more views:
+
+```bash
+python tools/preview.py ru          # the film in a browser, with the voice or the mix, a timeline and seeking
+python tools/storyboard.py ru       # one still per beat with its scene and narration, on one sheet
+```
+
+The player draws frames live, so a heavy shot plays below full speed; the picture follows the sound and drops frames rather than drifting.
 
 ### 8. Write the sound
 
@@ -123,6 +146,8 @@ THREADS=6 CRF=17 python render.py renders/film_ru "lang=ru&fps=24&file=film_ru.m
 ```
 
 Do the stills pass in each language first. A wrong decimal comma in one language costs a whole re-render later. Run one heavy job at a time. Sound-only changes need no picture render: remake the mix and run `finish_film.py` again.
+
+For a long film, or a machine that may overheat or lose power, render in parts: `python render_parts.py renders/film_ru "lang=ru&file=film_ru.mp4" --part 60`. Each part is its own run, a re-run skips the parts already done, and the parts are joined without re-encoding.
 
 ### 10. Deliver, clean up, report
 
@@ -166,5 +191,5 @@ Report what was verified and what was not, in those words. The decisions (idea, 
 | `references/pitfalls.md` | Symptom, cause, fix, across the whole pipeline | When something looks wrong |
 | `scripts/check_env.py` | What the machine has | First |
 | `scripts/new_project.py` | Makes a project from the template | Second |
-| `assets/template/` | The project skeleton, a working demo | Copied by `new_project.py` |
+| `assets/template/` | The project skeleton, a working demo: voice, flat and 3D shots, score, preview player, storyboard, render in parts | Copied by `new_project.py` |
 | `assets/examples/court-astronomer/` | The real film's code: 10 3D builders, flat shots, a hand rig, a full score | Grep it for a technique; it does not run on its own |

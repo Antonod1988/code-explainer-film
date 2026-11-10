@@ -10,6 +10,8 @@ All of these happened. Search this file by symptom.
 | No word boundaries, or an argument error on `boundary` | Old edge-tts | Upgrade; 7.3.1 is tested |
 | The local neural voice will not start | Its runtime or environment is gone | Check that it starts before planning around it, or use edge-tts |
 | Film far longer than planned | Word budget ignored | About 125 words a minute in Russian, 150 in English. Cut text; keep `rate` at +10% or less |
+| A word stressed wrong, in every take | Homograph or rare word | Lexicon entry with U+0301 after the stressed vowel; ask the user to listen. An upper-case vowel does nothing |
+| One beat sounds rushed or flat | One voice setting for the whole film | That beat's own `voice` with its `rate` or `pitch`; compare with `--try` first |
 | A cue fires on the wrong word | Marker misplaced, or a number read differently from the text | Read the `name=word@time` lines. Spell numbers out |
 | A shot breaks in one language only | Code assumed the order of two cues, or a typed-in time | Derive from cues, guard spans. Stills in every language |
 | `audio/voice/.../*.wav is missing` | WAVs were cleaned up | `python tools/tts.py` remakes them from the mp3s without calling the service |
@@ -43,6 +45,7 @@ All of these happened. Search this file by symptom.
 
 | Symptom | Cause | Fix |
 |---|---|---|
+| A vertical film crops its scenes | Layout typed in for 1920x1080 | Lay out from `W` and `H`; give 3D cameras more distance when `H > W` |
 | Sleeves or limbs like thick pipes | Constant-width shapes | `taperPath`, narrower wrists, folds |
 | Page off-centre | A scale around the wrong origin | Translate to the centre first; check on a sheet |
 | Empty stage at the start of a beat | Content arrives only on a later cue | Give the stage something from its first frame |

@@ -150,8 +150,9 @@ function buildOrbit() {
       moon.position.set(R * Math.cos(a), 0, -R * Math.sin(a));
       moon.rotation.y = a + Math.PI;      // the same face stays towards the Earth
       earth.rotation.y = u * .25;
-      const az = rad(-20) + u * .04, rr = 15.5;   // the camera stays well outside the orbit, so nothing flies through the lens
-      const hh = lerp(7, 4.5, ease(ramp(t, CUE.side - .6, CUE.side + 2)));
+      const fit = Math.max(1, (16 / 9) * H / W);
+      const az = rad(-20) + u * .04, rr = 15.5 * fit;   // fit the orbit inside the horizontal field of view
+      const hh = lerp(7, 4.5, ease(ramp(t, CUE.side - .6, CUE.side + 2))) * fit;
       c.position.set(Math.sin(az) * rr, hh, Math.cos(az) * rr); c.lookAt(0, 0, 0);
     },
     overlay(g, t, X) {
@@ -161,7 +162,7 @@ function buildOrbit() {
       const b = ease(ramp(t, X.b.start + .1, X.b.start + .6));
       tag(g, ep.x, ep.y - 125, T_({ ru: 'Земля', en: 'Earth' }), { a: b, dy: -50 });
       tag(g, mp.x, mp.y - 46, T_({ ru: 'Луна', en: 'Moon' }), { a: b, dy: -56 });
-      tag(g, W - 300, 130, T_({ ru: '← свет Солнца', en: '← sunlight' }), { a: b, stemless: true, dy: 0 });
+      tag(g, H > W ? W / 2 : W - 300, 130, T_({ ru: '← свет Солнца', en: '← sunlight' }), { a: b, stemless: true, dy: 0 });
     },
   };
 }
@@ -178,7 +179,7 @@ export const SPACE = {
     S.update(t, X);
     renderPass.scene = S.scene; renderPass.camera = S.camera;
     bloom.strength = X.bloom == null ? 0.22 : X.bloom;
-    composer.render();
+    composer.render(0);   // the composer must not consult its internal clock
     g.drawImage(renderer.domElement, 0, 0);
     if (S.overlay) S.overlay(g, t, X);
   },

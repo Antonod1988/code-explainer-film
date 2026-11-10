@@ -36,6 +36,21 @@ Every one of these was found in the real film by looking at a sheet.
 
 Fix in batches, then re-shoot only the same moments.
 
+## Looking at it as a person
+
+Stills and sheets are for you. A person wants to see it move and hear it:
+
+```bash
+python tools/preview.py ru            # serves the project and opens the player in the default browser
+python tools/storyboard.py ru         # renders/storyboard_ru/storyboard.jpg: a still per beat with its scene and narration
+```
+
+- The player draws the film live in the browser with the mix if `audio/mix/ru.wav` exists, else the voice takes on their beats, else silent; it shows which. Below the picture: a timeline with the beats and their cues, the time, the beat, the line being spoken with the current word lit.
+- Keys: Space plays and pauses, arrows step a second (Shift: five), comma and period step a frame, `[` and `]` jump between beats, M mutes, S saves the frame as a PNG.
+- It drops frames to keep up with the sound, so a heavy shot looks choppy there and smooth in the render. The corner shows the drawing time.
+- The page is served from the project folder, so a person can open the same address while you keep working. Stop the server when the review is over.
+- The player is the place to ask about rhythm, stresses and whether the picture lands on the words. Stills cannot answer those.
+
 ## Render modes
 
 Everything goes through `render.py <out-dir> "<query>"`. It starts `server.py` and a headless browser, and stops both afterwards.
@@ -45,9 +60,10 @@ Everything goes through `render.py <out-dir> "<query>"`. It starts `server.py` a
 | `lang=ru&times=1,4.5,9` | PNG stills `t001.00.png` ... |
 | `lang=ru&fps=24&file=film_ru.mp4` | The whole film, streamed into libx264 |
 | `lang=ru&fps=24&file=patch.mp4&from=120&to=130` | Only that span |
+| `...&f0=2880&f1=4320` | Only those frames (exclusive end); used by `render_parts.py` |
 | `...&pause=40` | Rest 40 ms after each frame, to run cooler |
 
-Without `record` in the URL (open `index.html` through a server yourself), the page plays in real time, which helps a person looking at it.
+`fps` defaults to the script's `format`.
 
 Environment, read by `server.py`: `CRF` (default 16; 17 is fine for a master, 23 for a casual clip), `GOP` (keyframe spacing; set it for loops), `THREADS` (x264 threads; 6 leaves room on an 8-core laptop).
 
@@ -68,9 +84,15 @@ A 16-minute render should be started once. Before it, take stills in that langua
 - Do not chain review renders back to back. Batch your changes.
 - If the user complains about the load, stop at once and offer a choice. Do not silently throttle: slowing a render by adding pauses annoyed the same person who had complained.
 
-## Partial re-render
+## Long films: in parts
 
-`from` and `to` record a span with identical settings. Splicing it into the master has not been needed yet, so treat that as untested: concat only on a keyframe, with identical encoder settings, and check the join on a sheet. For anything short of a big film, re-rendering the whole language is simpler. Sound changes never need this: re-run `finish_film.py`.
+```bash
+THREADS=6 CRF=17 python render_parts.py renders/film_ru "lang=ru&file=film_ru.mp4" --part 60
+```
+
+The film is cut into parts of about 60 s on exact frame numbers. Each part is its own `render.py` run into `renders/film_ru/parts/`, marked done when its frame count is right, and a re-run skips the finished ones, so an overheated or rebooted machine loses at most one part. Then the parts are joined without re-encoding and the frames of the result are counted. Each part starts on a keyframe, which is what makes the join clean; check it on a sheet anyway.
+
+To redo one stretch of a finished film, delete the `.ok` files of the parts it touches and run the same command again. Sound changes never need a picture render: re-run `finish_film.py`.
 
 ## Browser notes
 

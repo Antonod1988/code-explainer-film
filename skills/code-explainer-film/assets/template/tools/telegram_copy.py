@@ -9,7 +9,7 @@ import argparse
 import os
 import subprocess
 
-from common import ROOT, ffmpeg, stem, timeline
+from common import ROOT, copy_size, ffmpeg, stem, timeline
 
 ap = argparse.ArgumentParser()
 ap.add_argument("lang")
@@ -21,8 +21,10 @@ out = ROOT / "final" / f"{stem(a.lang)}-telegram.mp4"
 (ROOT / "renders").mkdir(exist_ok=True)
 log = str(ROOT / "renders" / f"_tg_{a.lang}")
 audio = 96
-kbps = min(3000, max(200, int((a.mb * 8 * 1024) / timeline(a.lang)["total"] - audio - 4)))
-video = ["-vf", "hqdn3d=2.5:2.5:5:5,scale=960:540:flags=lanczos,format=yuv420p",
+tl = timeline(a.lang)
+sw, sh = copy_size(tl)
+kbps = min(3000, max(200, int((a.mb * 8 * 1024) / tl["total"] - audio - 4)))
+video = ["-vf", f"hqdn3d=2.5:2.5:5:5,scale={sw}:{sh}:flags=lanczos,format=yuv420p",
          "-c:v", "libx264", "-preset", "medium", "-profile:v", "high", "-level:v", "3.1",
          "-refs", "4", "-bf", "2", "-g", "48", "-keyint_min", "24", "-sc_threshold", "40", "-flags", "+cgop",
          "-b:v", f"{kbps}k", "-maxrate", f"{int(kbps * 1.5)}k", "-bufsize", f"{int(kbps * 2)}k", "-threads", os.environ.get("THREADS", "6"),

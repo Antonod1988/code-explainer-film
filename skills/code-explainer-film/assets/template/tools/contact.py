@@ -4,14 +4,17 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw
 
-from common import ROOT, label_font
+from common import ROOT, fit_size, label_font
 
 d = Path(sys.argv[1])
 if not d.is_absolute():
     d = ROOT / d
 cols = int(sys.argv[2]) if len(sys.argv) > 2 else 4
 files = sorted(d.glob("t*.png"))
-tw, th = 480, 270
+if not files or cols < 1:
+    sys.exit("need PNG stills and a positive column count")
+with Image.open(files[0]) as first:
+    tw, th = fit_size(*first.size)
 rows = (len(files) + cols - 1) // cols
 img = Image.new("RGB", (cols * tw, rows * (th + 22)), (20, 20, 20))
 dr = ImageDraw.Draw(img)

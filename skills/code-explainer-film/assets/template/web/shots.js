@@ -44,22 +44,27 @@ function shotTitle(g, t) {
   flatMoon(g, 0, bob, 270, p);
   g.restore();
   plaque(g, T_({ ru: 'Почему у Луны есть фазы', en: 'Why the Moon has phases' }), W / 2, 110, { a: io(ramp(t, .5, 1.1)), size: 46 });
-  tag(g, W / 2 + 205, H / 2 - 140 + bob, T_({ ru: 'видимая часть', en: 'the part we see' }), { a: io(ramp(t, CUE.turn, CUE.turn + .5)), dx: 260, dy: -60 });
+  tag(g, W / 2 + 205, H / 2 - 140 + bob, T_({ ru: 'видимая часть', en: 'the part we see' }), { a: io(ramp(t, CUE.turn, CUE.turn + .5)), dx: H > W ? -20 : 260, dy: -60 });
 }
 
 function shotPhases(g, t) {
   g.drawImage(sky(), 0, 0);
-  const n = 8, x0 = 240, dx = (W - 480) / (n - 1), y = H / 2 + 20, r = 92;
+  const n = 8, portrait = H > W, x0 = 240, dx = (W - 480) / (n - 1), y = H / 2 + 20;
+  const r = portrait ? Math.min(W * .14, H * .065) : Math.min(92, dx * .45);
+  const pos = (i) => portrait ? [W * (.28 + (i % 2) * .44), H * (.27 + Math.floor(i / 2) * .18)] : [x0 + i * dx, y];
   const t0 = BEAT.b03.start + .2, each = (CUE.end - t0) / n;
   for (let i = 0; i < n; i++) {
     const a = ramp(t, t0 + i * each, t0 + i * each + .35);
     if (a <= 0) continue;
     const s = EASE.b(a);
-    g.save(); g.translate(x0 + i * dx, y); g.scale(s, s); flatMoon(g, 0, 0, r, i / n); g.restore();
+    g.save(); g.translate(...pos(i)); g.scale(s, s); flatMoon(g, 0, 0, r, i / n); g.restore();
   }
   // a star runs along the row, and goes home on "starts over"
   const run = ramp(t, CUE.cycle, CUE.end - .05), back = io(ramp(t, CUE.end, CUE.end + .7));
-  const px = lerp(lerp(x0, x0 + (n - 1) * dx, run), x0, back);
-  ink(g, star(px, y + r + 62, 26, 9), C.gold, LINE * .7);
+  const travel = run * (n - 1), j = Math.min(n - 2, Math.floor(travel));
+  const p = pos(j), q = pos(j + 1), home = pos(0);
+  const px = lerp(lerp(p[0], q[0], travel - j), home[0], back);
+  const py = lerp(lerp(p[1], q[1], travel - j), home[1], back);
+  ink(g, star(px, py + r + (portrait ? 38 : 62), 26, 9), C.gold, LINE * .7);
   plaque(g, T_({ ru: '29,5 дня', en: '29.5 days' }), W / 2, 170, { a: io(ramp(t, BEAT.b03.start, BEAT.b03.start + .5)) });
 }

@@ -28,6 +28,10 @@ tag(g, x, y, T_({ ru: 'видимая часть', en: 'the part we see' }), { a
 
 Give each 3D shot `X.b`, its beat, so its motion can span `b.start` to `b.end`.
 
+## The frame
+
+`W`, `H` and `FPS` come from `"format"` in `script.json` through the timeline. Lay everything out from them, never from 1920 and 1080. A vertical film (`9:16`) needs its own compositions: stack what a wide frame puts side by side, keep text in the middle two thirds (platform buttons cover the bottom and the right edge), and give a 3D camera more distance or a wider field of view, since the narrow frame cuts the sides of a scene. Look at stills in the real format before writing many shots.
+
 ## Flat shots
 
 The look comes from a few primitives in `lib.js`:

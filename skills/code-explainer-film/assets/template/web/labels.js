@@ -29,9 +29,12 @@ function tag(g, x, y, text, o = {}) {
 // the larger plaque for titles and dates: a strip with a star at each end
 function plaque(g, text, x, y, o = {}) {
   const a = o.a == null ? 1 : o.a; if (a <= 0.003) return;
-  const size = o.size || 42;
+  let size = o.size || 42;
   g.save();
   g.globalAlpha = a;
+  g.font = `700 ${size}px ${FONT}`;
+  // Leave room for the ends even on a narrow portrait canvas.
+  size *= Math.min(1, (W - 80) / (g.measureText(text).width + size * 2.4 + 52));
   g.font = `700 ${size}px ${FONT}`;
   const w = g.measureText(text).width, hw = w / 2 + size * 1.2, hh = size * .86;
   g.translate(x, y);

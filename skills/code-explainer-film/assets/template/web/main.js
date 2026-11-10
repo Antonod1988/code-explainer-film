@@ -36,7 +36,13 @@ async function run() {
   await document.fonts.load(`700 40px ${FONT}`);
   const { SPACE } = await import('./space.js');
   await FILM.init(SPACE);
-  const fps = +(Q.get('fps') || 24);
+  const fps = +(Q.get('fps') || FPS);
+  if (!Number.isFinite(fps) || fps <= 0) throw new Error('fps must be positive');
+  if (Q.has('preview')) {
+    const { preview } = await import('./preview.js');
+    await preview({ FILM, canvas, ctx, fps });
+    return;
+  }
   const times = Q.get('times') ? Q.get('times').split(',').map(Number) : null;
   if (times) {
     for (const t of times) {
@@ -47,7 +53,9 @@ async function run() {
     }
   } else if (RECORD) {
     const from = +(Q.get('from') || 0), to = +(Q.get('to') || FILM.DUR);
-    const i0 = Math.round(from * fps), i1 = Math.round(to * fps), n = i1 - i0;
+    const i0 = Q.has('f0') ? Number(Q.get('f0')) : Math.round(from * fps);
+    const i1 = Q.has('f1') ? Number(Q.get('f1')) : Math.round(to * fps), n = i1 - i0;
+    if (!Number.isInteger(i0) || !Number.isInteger(i1) || i0 < 0 || n <= 0) throw new Error('invalid frame range');
     await send('/start', JSON.stringify({ w: W, h: H, fps, total: n, file: Q.get('file') || 'film.mp4' }));
     const t0 = performance.now();
     for (let i = i0; i < i1; i++) {
